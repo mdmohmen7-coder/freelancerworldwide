@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle2, ShieldCheck, Mail, MapPin, Phone } from 'lucide-react';
+import { Send, CheckCircle2, ShieldCheck, Mail, MapPin, Phone, Loader2 } from 'lucide-react';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -7,17 +7,41 @@ export default function ContactForm() {
     company: '',
     email: '',
     country: 'USA',
-    phone: '',
     service: 'Web Development',
     budget: '$2,500 – $5,000',
     details: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('https://formspree.io/f/myekvyzo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await response.json();
+        setError(data?.errors?.[0]?.message || 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,11 +107,18 @@ export default function ContactForm() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center">
+                      {error}
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">Full Name *</label>
                       <input
                         type="text"
+                        name="fullName"
                         required
                         placeholder="Enter Your Name"
                         value={formData.fullName}
@@ -99,6 +130,7 @@ export default function ContactForm() {
                       <label className="block text-xs font-medium text-slate-300 mb-1">Business / Company *</label>
                       <input
                         type="text"
+                        name="company"
                         required
                         placeholder="Enter Your Company Name"
                         value={formData.company}
@@ -113,6 +145,7 @@ export default function ContactForm() {
                       <label className="block text-xs font-medium text-slate-300 mb-1">Email Address *</label>
                       <input
                         type="email"
+                        name="email"
                         required
                         placeholder="Enter Your Mail"
                         value={formData.email}
@@ -123,6 +156,7 @@ export default function ContactForm() {
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">Country / Market *</label>
                       <select
+                        name="country"
                         value={formData.country}
                         onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-xl bg-[#05070E] border border-slate-800 text-white text-sm focus:outline-none focus:border-blue-500"
@@ -142,6 +176,7 @@ export default function ContactForm() {
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">Service Required</label>
                       <select
+                        name="service"
                         value={formData.service}
                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-xl bg-[#05070E] border border-slate-800 text-white text-sm focus:outline-none focus:border-blue-500"
@@ -155,6 +190,7 @@ export default function ContactForm() {
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">Estimated Budget (USD)</label>
                       <select
+                        name="budget"
                         value={formData.budget}
                         onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-xl bg-[#05070E] border border-slate-800 text-white text-sm focus:outline-none focus:border-blue-500"
@@ -171,30 +207,3 @@ export default function ContactForm() {
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">Project Details &amp; Objectives *</label>
                     <textarea
-                      rows={4}
-                      required
-                      placeholder="Briefly describe your goals, required timeline, and specific challenges..."
-                      value={formData.details}
-                      onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-[#05070E] border border-slate-800 text-white text-sm focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2"
-                  >
-                    <span>Send Project Inquiry</span>
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-  );
-}
