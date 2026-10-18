@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle2, ShieldCheck, Mail, MapPin, Phone, Loader2 } from 'lucide-react';
+import { Send, CheckCircle2, ShieldCheck, Mail, MapPin, Phone } from 'lucide-react';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -38,7 +38,7 @@ export default function ContactForm() {
         setError(data?.errors?.[0]?.message || 'Something went wrong. Please try again.');
       }
     } catch (err) {
-      setError('Network error. Please check your connection and try again.');
+      setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -207,3 +207,32 @@ export default function ContactForm() {
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">Project Details &amp; Objectives *</label>
                     <textarea
+                      name="details"
+                      rows={4}
+                      required
+                      placeholder="Briefly describe your goals, required timeline, and specific challenges..."
+                      value={formData.details}
+                      onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#05070E] border border-slate-800 text-white text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2"
+                  >
+                    <span>{loading ? 'Sending Inquiry...' : 'Send Project Inquiry'}</span>
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  );
+}
